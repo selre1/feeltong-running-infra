@@ -1,0 +1,60 @@
+﻿mame: feeltong-running-dev
+
+services:
+  running-front:
+    build:
+      context: ../feeltong-running-web
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - running-back
+    networks:
+      - running
+
+  running-back:
+    build:
+      context: ../feeltong-running-back
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${PORT}
+      DB_PATH: ${DB_PATH}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_JWKS_URL: ${SUPABASE_JWKS_URL}
+      SESSION_SECRET: ${SESSION_SECRET}
+      CORS_WHITELIST: ${CORS_WHITELIST}
+    depends_on:
+      - running-mongodb
+    networks:
+      - running
+
+  running-mongodb:
+    image: mongo:7
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: feltong-running
+    volumes:
+      - running_mongodb_data:/data/db
+    networks:
+      - running
+
+  running-proxy:
+    image: nginx:1.27-alpine
+    restart: always
+    ports:
+      - "81:80"
+    depends_on:
+      - running-front
+      - running-back
+    volumes:
+      - ./proxy/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - running
+
+volumes:
+  running_mongodb_data:
+
+networks:
+  running:
