@@ -1,17 +1,21 @@
-﻿mame: feeltong-running-dev
+﻿name: feeltong-running-dev
 
 services:
   running-front:
+    container_name: running-front-dev
     build:
       context: ../feeltong-running-web
       dockerfile: Dockerfile
     restart: always
+    environment:
+      APP_BACK_URL: ${APP_BACK_URL}
     depends_on:
       - running-back
     networks:
       - running
 
   running-back:
+    container_name: running-back-dev
     build:
       context: ../feeltong-running-back
       dockerfile: Dockerfile
@@ -31,20 +35,20 @@ services:
       - running
 
   running-mongodb:
+    container_name: running-mongodb-dev
     image: mongo:7
     restart: always
-    environment:
-      MONGO_INITDB_DATABASE: feltong-running
     volumes:
-      - running_mongodb_data:/data/db
+      - running_mongodb_data:/data/db:rw
     networks:
       - running
 
   running-proxy:
+    container_name: running-proxy-dev
     image: nginx:1.27-alpine
     restart: always
     ports:
-      - "81:80"
+      - "80:80"
     depends_on:
       - running-front
       - running-back
