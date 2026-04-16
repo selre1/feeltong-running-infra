@@ -16,9 +16,7 @@ services:
 
   running-back:
     container_name: running-back
-    build:
-      context: ../feeltong-running-back
-      dockerfile: Dockerfile
+    image: ${REGISTRY}/feeltong-running-back:${BACK_TAG}
     restart: always
     environment:
       NODE_ENV: ${NODE_ENV}
